@@ -1,0 +1,329 @@
+version: 2
+
+models:
+
+  - name: sor_branch
+    tests:
+      - count_match:
+          arguments:
+            source_table: "{{ source('stg','stg_branch') }}"
+
+    columns:
+      - name: branch_key
+        tests:
+          - unique
+          - not_null
+
+      - name: branch_id
+        tests:
+          - unique
+          - not_null
+          - minus_check:
+              arguments:
+                source_table: "{{ source('stg','stg_branch') }}"
+                source_column: branch_id
+          - no_duplicate
+
+      - name: status_desc
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['Active','Closed','Unknown']
+              config:
+                severity: warn
+
+
+
+  - name: sor_customer
+    tests:
+      - count_match:
+          arguments:
+            source_table: "{{ source('stg','stg_customer') }}"
+
+    columns:
+
+      - name: customer_key
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+          - minus_check:
+              arguments:
+                source_table: "{{ source('stg','stg_customer') }}"
+                source_column: customer_id
+          - no_duplicate
+
+      - name: full_name
+        tests:
+          - not_null
+
+      - name: gender_desc
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['Nam','Nữ','N/A']
+              config:
+                severity: warn
+
+      - name: age
+        tests:
+          - value_in_range:
+              arguments:
+                min_value: 0
+                max_value: 120
+              config:
+                severity: warn
+
+      - name: customer_type_desc
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Cá nhân','Doanh nghiệp','Khác']
+
+      - name: is_current
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]
+
+
+
+  - name: sor_account
+    tests:
+      - count_match:
+          arguments:
+            source_table: "{{ source('stg','stg_account') }}"
+
+    columns:
+
+      - name: account_key
+        tests:
+          - unique
+          - not_null
+
+      - name: account_id
+        tests:
+          - unique
+          - not_null
+          - minus_check:
+              arguments:
+                source_table: "{{ source('stg','stg_account') }}"
+                source_column: account_id
+          - no_duplicate
+
+      - name: customer_key
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('sor_customer')
+                field: customer_key
+
+      - name: branch_key
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('sor_branch')
+                field: branch_key
+
+      - name: account_type_desc
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Saving','Checking','Credit','Loan','Khác']
+
+      - name: status_desc
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Active','Closed','Dormant','Frozen','Unknown']
+
+      - name: interest_rate
+        tests:
+          - value_in_range:
+              arguments:
+                min_value: 0
+                max_value: 30
+              config:
+                severity: warn
+
+      - name: account_age_days
+        tests:
+          - value_in_range:
+              arguments:
+                min_value: 0
+                max_value: 36500
+              config:
+                severity: warn
+
+
+
+  - name: sor_transaction
+    tests:
+      - count_match:
+          arguments:
+            source_table: "{{ source('stg','stg_transaction') }}"
+
+    columns:
+
+      - name: transaction_key
+        tests:
+          - unique
+          - not_null
+
+      - name: transaction_id
+        tests:
+          - unique
+          - not_null
+          - minus_check:
+              arguments:
+                source_table: "{{ source('stg','stg_transaction') }}"
+                source_column: transaction_id
+          - no_duplicate
+
+      - name: account_key
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('sor_account')
+                field: account_key
+
+      - name: customer_key
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('sor_customer')
+                field: customer_key
+
+      - name: transaction_type_desc
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Credit','Debit','Unknown']
+
+      - name: amount
+        tests:
+          - value_in_range:
+              arguments:
+                min_value: 0.01
+                max_value: 999999999999
+
+      - name: amount_vnd
+        tests:
+          - not_null
+          - value_in_range:
+              arguments:
+                min_value: 0.01
+                max_value: 999999999999999
+
+      - name: exchange_rate
+        tests:
+          - not_null
+          - value_in_range:
+              arguments:
+                min_value: 0.0001
+                max_value: 999999
+
+      - name: channel_desc
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['ATM','POS','Mobile Banking','Internet Banking','Quầy','Khác']
+              config:
+                severity: warn
+
+
+
+  - name: sor_daily_balance
+    tests:
+      - count_match:
+          arguments:
+            source_table: "{{ source('stg','stg_account_balance') }}"
+
+    columns:
+
+      - name: balance_key
+        tests:
+          - unique
+          - not_null
+
+      - name: account_key
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('sor_account')
+                field: account_key
+
+      - name: closing_balance_vnd
+        tests:
+          - not_null
+          - value_in_range:
+              arguments:
+                min_value: 0
+                max_value: 999999999999999
+              config:
+                severity: warn
+
+      - name: exchange_rate
+        tests:
+          - not_null
+          - value_in_range:
+              arguments:
+                min_value: 0.0001
+                max_value: 999999
+
+      - name: net_movement_vnd
+        tests:
+          - not_null
+
+
+
+  - name: sor_customer_account_summary
+
+    columns:
+
+      - name: summary_key
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_key
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('sor_customer')
+                field: customer_key
+
+      - name: total_accounts
+        tests:
+          - not_null
+          - value_in_range:
+              arguments:
+                min_value: 0
+                max_value: 1000
+              config:
+                severity: warn
+
+      - name: total_balance_vnd
+        tests:
+          - value_in_range:
+              arguments:
+                min_value: 0
+                max_value: 999999999999999
+              config:
+                severity: warn

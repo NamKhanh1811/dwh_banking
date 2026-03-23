@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: stg
+    database: postgres
+    schema: stg
+    tables:
+      - name: stg_branch
+      - name: stg_customer
+      - name: stg_product
+      - name: stg_account
+      - name: stg_exchange_rate
+      - name: stg_transaction
+      - name: stg_account_balance
