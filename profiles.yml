@@ -3,7 +3,7 @@ my_dbt_project:
   outputs:
     dev:
       type: postgres
-      host: 10.0.2.2 # Thay đổi ip của postgres cho minikube dùng
+      host: "host.docker.internal" # Thay đổi ip của postgres cho minikube dùng
       user: postgres
       password: khanh181106
       port: 5432
