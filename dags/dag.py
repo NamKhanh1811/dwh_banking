@@ -9,28 +9,11 @@ with DAG(
     catchup=False
 ) as dag:
 
-    dbt_debug = BashOperator(
-        task_id='dbt_debug',
+    run_dbt = BashOperator(
+        task_id='dbt_run_task',
         bash_command="""
-        cd /opt/airflow/dags/dbt_project &&
-        dbt debug
-        """
-    )
-
-    dbt_run = BashOperator(
-        task_id='dbt_run',
-        bash_command="""
-        cd /opt/airflow/dags/dbt_project &&
+        cd /opt/airflow/dags &&
+        dbt debug &&
         dbt run
         """
     )
-
-    dbt_test = BashOperator(
-        task_id='dbt_test',
-        bash_command="""
-        cd /opt/airflow/dags/dbt_project &&
-        dbt test
-        """
-    )
-
-    dbt_debug >> dbt_run >> dbt_test
