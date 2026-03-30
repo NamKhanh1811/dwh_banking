@@ -5,14 +5,32 @@ from datetime import datetime
 with DAG(
     dag_id='my_dbt_transformation',
     start_date=datetime(2024, 1, 1),
-    schedule_interval=None,
+    schedule=None,
     catchup=False
 ) as dag:
 
-    run_dbt = BashOperator(
-        task_id='dbt_run_task',
+    dbt_debug = BashOperator(
+        task_id='dbt_debug',
         bash_command="""
-            cd /opt/airflow/dags/repo && \
-            dbt run --profiles-dir . --project-dir .
+        cd /opt/airflow/dags/dbt_project &&
+        dbt debug
         """
     )
+
+    dbt_run = BashOperator(
+        task_id='dbt_run',
+        bash_command="""
+        cd /opt/airflow/dags/dbt_project &&
+        dbt run
+        """
+    )
+
+    dbt_test = BashOperator(
+        task_id='dbt_test',
+        bash_command="""
+        cd /opt/airflow/dags/dbt_project &&
+        dbt test
+        """
+    )
+
+    dbt_debug >> dbt_run >> dbt_test
