@@ -1,12 +1,19 @@
-my_dbt_project:
-  target: dev
-  outputs:
-    dev:
-      type: postgres
-      host: "192.168.49.1" # Thay đổi ip của postgres cho minikube dùng
-      user: postgres
-      password: khanh181106
-      port: 5432
-      dbname: postgres
-      schema: sor
-      threads: 1
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dbt-profiles
+  namespace: airflow
+data:
+  profiles.yml: |
+    my_dbt_project:
+      target: dev
+      outputs:
+        dev:
+          type: postgres
+          host: "192.168.49.1"
+          user: postgres
+          password: khanh181106
+          port: 5432
+          dbname: postgres
+          schema: sor
+          threads: 1
