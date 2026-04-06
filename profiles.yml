@@ -3,10 +3,10 @@ my_dbt_project:
   outputs:
     dev:
       type: postgres
-      host: "192.168.49.1"
-      user: postgres
-      password: khanh181106
+      host: airflow-postgresql
+      user: airflow
+      password: airflow
       port: 5432
-      dbname: postgres
+      dbname: airflow
       schema: sor
       threads: 1
