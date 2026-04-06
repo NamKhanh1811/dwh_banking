@@ -8,13 +8,11 @@ with DAG(
     schedule=None,
     catchup=False
 ) as dag:
-
+    
     run_dbt = BashOperator(
         task_id='dbt_run_task',
         bash_command="""
-        python3 -m pip install --user dbt-core dbt-postgres && 
-        export PATH=$PATH:/home/airflow/.local/bin &&
-        cd /opt/airflow/dags/repo && 
-        dbt run --profiles-dir .
+        cd /opt/airflow/dags/repo && \
+        dbt run --profiles-dir . --project-dir .
         """
     )
