@@ -41,20 +41,21 @@ with DAG(
     dbt_run = BashOperator(
         task_id='dbt_run_task',
         bash_command=f"""
-            # 1. Tạo môi trường ảo riêng biệt để tránh xung đột Protobuf
+            # 1. Tạo venv
             python3 -m venv /tmp/dbt_venv && \
             source /tmp/dbt_venv/bin/activate && \
             
-            # 2. Cài đặt các thư viện cần thiết bản ổn định
-            pip install --quiet --no-cache-dir \
-                dbt-core==1.8.0 \
-                dbt-postgres==1.8.0 \
-                psycopg2-binary && \
+            # 2. Cài đặt theo thứ tự "ép buộc"
+            # Cài dbt-core và bản binary của postgres adapter trước
+            pip install --quiet --no-cache-dir dbt-core==1.8.0 psycopg2-binary==2.9.9 && \
             
-            # 3. Di chuyển vào thư mục project
+            # Cài dbt-postgres mà KHÔNG cho phép cài thêm phụ thuộc (để tránh build psycopg2 từ source)
+            pip install --quiet --no-cache-dir dbt-postgres==1.8.0 --no-deps && \
+            
+            # 3. Chuyển vào thư mục project
             cd {DBT_PROJECT_DIR} && \
             
-            # 4. Xóa rác (target/logs) từ Windows nếu có
+            # 4. Xóa rác Windows
             rm -rf target/ logs/ && \
             
             # 5. Thực thi dbt
@@ -64,12 +65,12 @@ with DAG(
                 --target dev \
                 --no-version-check
         """,
-        # Airflow sẽ tự động truyền các biến môi trường vào nếu bạn cần dùng trong profiles.yml
+        # Giữ nguyên phần env như cũ
         env={
             **os.environ,
             "DBT_POSTGRES_HOST": Variable.get("DBT_POSTGRES_HOST", "192.168.49.1"),
             "DBT_POSTGRES_USER": Variable.get("DBT_POSTGRES_USER", "postgres"),
-            "DBT_POSTGRES_PW": Variable.get("DBT_POSTGRES_PASSWORD", "khanh181106"),
+            "DBT_POSTGRES_PASSWORD": Variable.get("DBT_POSTGRES_PASSWORD", "khanh181106"),
             "DBT_POSTGRES_PORT": Variable.get("DBT_POSTGRES_PORT", "5432"),
             "DBT_POSTGRES_DB": Variable.get("DBT_POSTGRES_DB", "postgres"),
         }
