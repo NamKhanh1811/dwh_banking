@@ -3,10 +3,10 @@ my_dbt_project:
   outputs:
     dev:
       type: postgres
-      host: airflow-postgresql
-      user: airflow
-      password: airflow
-      port: 5432
-      dbname: airflow
+      host: "{{ env_var('DBT_POSTGRES_HOST') }}"
+      user: "{{ env_var('DBT_POSTGRES_USER') }}"
+      pass: "{{ env_var('DBT_POSTGRES_PASSWORD') }}"
+      port: {{ env_var('DBT_POSTGRES_PORT') | int }}
+      dbname: "{{ env_var('DBT_POSTGRES_DB') }}"
       schema: sor
       threads: 1
