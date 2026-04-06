@@ -59,17 +59,17 @@ with DAG(
             # 3. Di chuyển vào thư mục dự án
             cd {DBT_PROJECT_DIR}
             
-            # 4. Kiểm tra sự tồn tại của file
-            if [ ! -f "dbt_project.yml" ]; then
-                echo "LỖI: Không tìm thấy dbt_project.yml tại $(pwd)"
-                exit 1
+            # 4. Kiểm tra file (Dùng lệnh dbt trực tiếp)
+            echo "--- ĐANG KIỂM TRA KẾT NỐI (DBT DEBUG) ---"
+            dbt debug --project-dir . --profiles-dir {DBT_PROFILES_DIR} --target dev
+            
+            if [ $? -ne 0 ]; then
+                echo "LỖI: dbt debug thất bại. Kiểm tra profiles.yml và kết nối database!"
+                exit 2
             fi
 
-            echo "--- ĐANG KIỂM TRA KẾT NỐI (DBT DEBUG) ---"
-            python3 -m dbt.cli.main debug --project-dir . --profiles-dir {DBT_PROFILES_DIR} --target dev --no-version-check
-            
             echo "--- ĐANG CHẠY DỰ ÁN (DBT RUN) ---"
-            python3 -m dbt.cli.main run --project-dir . --profiles-dir {DBT_PROFILES_DIR} --target dev --no-version-check
+            dbt run --project-dir . --profiles-dir {DBT_PROFILES_DIR} --target dev
         """,
         env=DBT_ENV
     )
