@@ -43,24 +43,25 @@ with DAG(
     dbt_run = BashOperator(
         task_id='dbt_run_task',
         bash_command=f"""
-            # 1. Tạo môi trường ảo nếu chưa có và kích hoạt
+            # 1. Tạo môi trường ảo
             python3 -m venv /tmp/dbt_venv
             source /tmp/dbt_venv/bin/activate
             
-            # 2. Chỉ cài đặt nếu chưa có dbt (tăng tốc độ chạy)
-            pip install --quiet --no-cache-dir dbt-core==1.8.0 dbt-postgres==1.8.0 psycopg2-binary==2.9.9
+            # 2. Cài đặt dbt - THAY ĐỔI DÒNG NÀY ĐỂ TRÁNH LỖI BUILD
+            # Cài đặt psycopg2-binary TRƯỚC, sau đó mới cài dbt
+            pip install --upgrade pip
+            pip install --no-cache-dir psycopg2-binary==2.9.9
+            pip install --no-cache-dir dbt-core==1.8.0 dbt-postgres==1.8.0
             
             # 3. Di chuyển vào thư mục dự án
-            cd {DBT_PROJECT_DIR} || {{ echo "LỖI: Không tìm thấy thư mục dự án tại {DBT_PROJECT_DIR}"; exit 2; }}
+            cd {DBT_PROJECT_DIR}
             
-            # 4. Kiểm tra sự tồn tại của file quan trọng trước khi chạy
-            if [ ! -f "dbt_project.yml" ]; then
-                echo "LỖI: Không tìm thấy file dbt_project.yml trong $(pwd)"
-                ls -la
-                exit 2
+            # 4. Kiểm tra xem dbt đã được cài chưa
+            if ! python3 -m dbt.cli.main --version >/dev/null 2>&1; then
+                echo "LỖI: dbt không được cài đặt thành công!"
+                exit 1
             fi
 
-            # 5. Chạy dbt debug để kiểm tra kết nối trước, sau đó mới run
             echo "--- ĐANG KIỂM TRA KẾT NỐI (DBT DEBUG) ---"
             python3 -m dbt.cli.main debug --project-dir . --profiles-dir {DBT_PROFILES_DIR} --target dev --no-version-check
             
