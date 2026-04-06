@@ -47,18 +47,21 @@ with DAG(
             python3 -m venv /tmp/dbt_venv
             source /tmp/dbt_venv/bin/activate
             
-            # 2. Cài đặt dbt - THAY ĐỔI DÒNG NÀY ĐỂ TRÁNH LỖI BUILD
-            # Cài đặt psycopg2-binary TRƯỚC, sau đó mới cài dbt
+            # 2. CÀI ĐẶT TỪNG BƯỚC ĐỂ TRÁNH BUILD PSOCP2
             pip install --upgrade pip
+            # Cài bản binary trước
             pip install --no-cache-dir psycopg2-binary==2.9.9
-            pip install --no-cache-dir dbt-core==1.8.0 dbt-postgres==1.8.0
+            # Cài dbt-core trước
+            pip install --no-cache-dir dbt-core==1.8.0
+            # Cài dbt-postgres mà KHÔNG cho phép nó tự cài dependency (vì mình đã cài ở trên rồi)
+            pip install --no-cache-dir dbt-postgres==1.8.0 --no-deps
             
             # 3. Di chuyển vào thư mục dự án
             cd {DBT_PROJECT_DIR}
             
-            # 4. Kiểm tra xem dbt đã được cài chưa
-            if ! python3 -m dbt.cli.main --version >/dev/null 2>&1; then
-                echo "LỖI: dbt không được cài đặt thành công!"
+            # 4. Kiểm tra sự tồn tại của file
+            if [ ! -f "dbt_project.yml" ]; then
+                echo "LỖI: Không tìm thấy dbt_project.yml tại $(pwd)"
                 exit 1
             fi
 
