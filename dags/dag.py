@@ -45,15 +45,18 @@ with DAG(
         bash_command=f"""
             cd {DBT_PROJECT_DIR}
             
+            echo "--- KIỂM TRA PHIÊN BẢN ---"
+            python3 -m pip show dbt-core dbt-postgres || python3 -m pip install dbt-postgres
+            
             echo "--- KIỂM TRA BIẾN MÔI TRƯỜNG ---"
             echo "Kết nối tới Host: $DBT_POSTGRES_HOST"
             
-            # Chạy trực tiếp dbt (không cần venv vì Helm đã cài sẵn vào image)
-            dbt debug --project-dir {DBT_PROJECT_DIR} --profiles-dir {DBT_PROFILES_DIR} --target dev
+            # Sử dụng python3 -m dbt thay vì gọi dbt trực tiếp
+            python3 -m dbt debug --project-dir . --profiles-dir . --target dev
             
             if [ $? -eq 0 ]; then
-                echo "--- KẾT NỐI THÀNH CÔNG, BẮT ĐẦU CHẠY DBT ---"
-                dbt run --project-dir {DBT_PROJECT_DIR} --profiles-dir {DBT_PROFILES_DIR} --target dev
+                echo "--- KẾT NỐI THÀNH CÔNG ---"
+                python3 -m dbt run --project-dir . --profiles-dir . --target dev
             else
                 echo "--- THẤT BẠI KHI DEBUG ---"
                 exit 1
