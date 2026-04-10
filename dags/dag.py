@@ -35,8 +35,8 @@ with DAG(
         cmds=["dbt"],
         arguments=[
             "run", 
-            "--project-dir", "/opt/airflow/dags/repo/banking_dwh", 
-            "--profiles-dir", "/opt/airflow/dags/repo/banking_dwh",
+            "--project-dir", "/opt/airflow/dags/repo", 
+            "--profiles-dir", "/opt/airflow/dags/repo",
             "--target", "dev"
         ],
         
