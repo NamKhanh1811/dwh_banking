@@ -59,7 +59,7 @@ with DAG(
         ],
         
         get_logs=True,               # Xem log dbt ngay trên Airflow UI
-        is_delete_operator_pod=True, # Chạy xong tự xóa Pod cho nhẹ Minikube
+        is_delete_operator_pod=False, # Chạy xong tự xóa Pod cho nhẹ Minikube
     )
 
     run_dbt
