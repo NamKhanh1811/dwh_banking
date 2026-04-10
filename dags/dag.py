@@ -28,7 +28,8 @@ with DAG(
         namespace="airflow",
         
         # SỬ DỤNG IMAGE CÓ SẴN DBT (Không cần pip install nữa)
-        image="ghcr.io/dbt-labs/dbt-postgres:1.11.0",
+        image="ghcr.io/dbt-labs/dbt-postgres:1.8.2",
+        image_pull_policy="IfNotPresent",
         
         # LỆNH THỰC THI
         cmds=["dbt"],
