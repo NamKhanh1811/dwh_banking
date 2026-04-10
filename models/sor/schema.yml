@@ -5,8 +5,7 @@ models:
   - name: sor_branch
     tests:
       - count_match:
-          arguments:
-            source_table: "{{ source('stg','stg_branch') }}"
+          source_table: "{{ source('stg','stg_branch') }}"
 
     columns:
       - name: branch_key
@@ -19,16 +18,14 @@ models:
           - unique
           - not_null
           - minus_check:
-              arguments:
-                source_table: "{{ source('stg','stg_branch') }}"
-                source_column: branch_id
+              source_table: "{{ source('stg','stg_branch') }}"
+              source_column: branch_id
           - no_duplicate
 
       - name: status_desc
         tests:
           - accepted_values:
-              arguments:
-                values: ['Active','Closed','Unknown']
+              values: ['Active','Closed','Unknown']
               config:
                 severity: warn
 
@@ -37,8 +34,7 @@ models:
   - name: sor_customer
     tests:
       - count_match:
-          arguments:
-            source_table: "{{ source('stg','stg_customer') }}"
+          source_table: "{{ source('stg','stg_customer') }}"
 
     columns:
 
@@ -52,9 +48,8 @@ models:
           - unique
           - not_null
           - minus_check:
-              arguments:
-                source_table: "{{ source('stg','stg_customer') }}"
-                source_column: customer_id
+              source_table: "{{ source('stg','stg_customer') }}"
+              source_column: customer_id
           - no_duplicate
 
       - name: full_name
@@ -64,17 +59,15 @@ models:
       - name: gender_desc
         tests:
           - accepted_values:
-              arguments:
-                values: ['Nam','Nữ','N/A']
+              values: ['Nam','Nữ','N/A']
               config:
                 severity: warn
 
       - name: age
         tests:
           - value_in_range:
-              arguments:
-                min_value: 0
-                max_value: 120
+              min_value: 0
+              max_value: 120
               config:
                 severity: warn
 
@@ -82,23 +75,20 @@ models:
         tests:
           - not_null
           - accepted_values:
-              arguments:
-                values: ['Cá nhân','Doanh nghiệp','Khác']
+              values: ['Cá nhân','Doanh nghiệp','Khác']
 
       - name: is_current
         tests:
           - not_null
           - accepted_values:
-              arguments:
-                values: [true, false]
+              values: [true, false]
 
 
 
   - name: sor_account
     tests:
       - count_match:
-          arguments:
-            source_table: "{{ source('stg','stg_account') }}"
+          source_table: "{{ source('stg','stg_account') }}"
 
     columns:
 
@@ -112,56 +102,49 @@ models:
           - unique
           - not_null
           - minus_check:
-              arguments:
-                source_table: "{{ source('stg','stg_account') }}"
-                source_column: account_id
+              source_table: "{{ source('stg','stg_account') }}"
+              source_column: account_id
           - no_duplicate
 
       - name: customer_key
         tests:
           - not_null
           - relationships:
-              arguments:
-                to: ref('sor_customer')
-                field: customer_key
+              to: ref('sor_customer')
+              field: customer_key
 
       - name: branch_key
         tests:
           - not_null
           - relationships:
-              arguments:
-                to: ref('sor_branch')
-                field: branch_key
+              to: ref('sor_branch')
+              field: branch_key
 
       - name: account_type_desc
         tests:
           - not_null
           - accepted_values:
-              arguments:
-                values: ['Saving','Checking','Credit','Loan','Khác']
+              values: ['Saving','Checking','Credit','Loan','Khác']
 
       - name: status_desc
         tests:
           - not_null
           - accepted_values:
-              arguments:
-                values: ['Active','Closed','Dormant','Frozen','Unknown']
+              values: ['Active','Closed','Dormant','Frozen','Unknown']
 
       - name: interest_rate
         tests:
           - value_in_range:
-              arguments:
-                min_value: 0
-                max_value: 30
+              min_value: 0
+              max_value: 30
               config:
                 severity: warn
 
       - name: account_age_days
         tests:
           - value_in_range:
-              arguments:
-                min_value: 0
-                max_value: 36500
+              min_value: 0
+              max_value: 36500
               config:
                 severity: warn
 
@@ -170,8 +153,7 @@ models:
   - name: sor_transaction
     tests:
       - count_match:
-          arguments:
-            source_table: "{{ source('stg','stg_transaction') }}"
+          source_table: "{{ source('stg','stg_transaction') }}"
 
     columns:
 
@@ -185,62 +167,54 @@ models:
           - unique
           - not_null
           - minus_check:
-              arguments:
-                source_table: "{{ source('stg','stg_transaction') }}"
-                source_column: transaction_id
+              source_table: "{{ source('stg','stg_transaction') }}"
+              source_column: transaction_id
           - no_duplicate
 
       - name: account_key
         tests:
           - not_null
           - relationships:
-              arguments:
-                to: ref('sor_account')
-                field: account_key
+              to: ref('sor_account')
+              field: account_key
 
       - name: customer_key
         tests:
           - not_null
           - relationships:
-              arguments:
-                to: ref('sor_customer')
-                field: customer_key
+              to: ref('sor_customer')
+              field: customer_key
 
       - name: transaction_type_desc
         tests:
           - not_null
           - accepted_values:
-              arguments:
-                values: ['Credit','Debit','Unknown']
+              values: ['Credit','Debit','Unknown']
 
       - name: amount
         tests:
           - value_in_range:
-              arguments:
-                min_value: 0.01
-                max_value: 999999999999
+              min_value: 0.01
+              max_value: 999999999999
 
       - name: amount_vnd
         tests:
           - not_null
           - value_in_range:
-              arguments:
-                min_value: 0.01
-                max_value: 999999999999999
+              min_value: 0.01
+              max_value: 999999999999999
 
       - name: exchange_rate
         tests:
           - not_null
           - value_in_range:
-              arguments:
-                min_value: 0.0001
-                max_value: 999999
+              min_value: 0.0001
+              max_value: 999999
 
       - name: channel_desc
         tests:
           - accepted_values:
-              arguments:
-                values: ['ATM','POS','Mobile Banking','Internet Banking','Quầy','Khác']
+              values: ['ATM','POS','Mobile Banking','Internet Banking','Quầy','Khác']
               config:
                 severity: warn
 
@@ -249,8 +223,7 @@ models:
   - name: sor_daily_balance
     tests:
       - count_match:
-          arguments:
-            source_table: "{{ source('stg','stg_account_balance') }}"
+          source_table: "{{ source('stg','stg_account_balance') }}"
 
     columns:
 
@@ -263,17 +236,15 @@ models:
         tests:
           - not_null
           - relationships:
-              arguments:
-                to: ref('sor_account')
-                field: account_key
+              to: ref('sor_account')
+              field: account_key
 
       - name: closing_balance_vnd
         tests:
           - not_null
           - value_in_range:
-              arguments:
-                min_value: 0
-                max_value: 999999999999999
+              min_value: 0
+              max_value: 999999999999999
               config:
                 severity: warn
 
@@ -281,9 +252,8 @@ models:
         tests:
           - not_null
           - value_in_range:
-              arguments:
-                min_value: 0.0001
-                max_value: 999999
+              min_value: 0.0001
+              max_value: 999999
 
       - name: net_movement_vnd
         tests:
@@ -305,25 +275,22 @@ models:
           - unique
           - not_null
           - relationships:
-              arguments:
-                to: ref('sor_customer')
-                field: customer_key
+              to: ref('sor_customer')
+              field: customer_key
 
       - name: total_accounts
         tests:
           - not_null
           - value_in_range:
-              arguments:
-                min_value: 0
-                max_value: 1000
+              min_value: 0
+              max_value: 1000
               config:
                 severity: warn
 
       - name: total_balance_vnd
         tests:
           - value_in_range:
-              arguments:
-                min_value: 0
-                max_value: 999999999999999
+              min_value: 0
+              max_value: 999999999999999
               config:
                 severity: warn
