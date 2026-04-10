@@ -58,7 +58,7 @@ with DAG(
             $DBT_EXE --version
             
             echo "--- THỰC THI DEBUG ---"
-            $DBT_EXE debug --project-dir {DBT_PROJECT_DIR} --profiles-dir {DBT_PROFILES_DIR} --target dev
+            $DBT_EXE --debug debug --project-dir {DBT_PROJECT_DIR} --profiles-dir {DBT_PROFILES_DIR} --target dev --no-use-colors
             
             if [ $? -eq 0 ]; then
                 echo "--- KẾT NỐI THÀNH CÔNG ---"

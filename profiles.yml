@@ -7,6 +7,7 @@ my_dbt_project:
       user: "{{ env_var('DBT_POSTGRES_USER') }}"
       password: "{{ env_var('DBT_POSTGRES_PASSWORD') }}"
       port: {{ env_var('DBT_POSTGRES_PORT') | int }}
+      sslmode: disable
       dbname: "{{ env_var('DBT_POSTGRES_DB') }}"
       schema: sor
       threads: 1
