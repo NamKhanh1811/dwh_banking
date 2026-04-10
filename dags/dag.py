@@ -43,33 +43,21 @@ with DAG(
     dbt_run = BashOperator(
         task_id='dbt_run_task',
         bash_command=f"""
-            # 1. Tạo môi trường ảo
-            python3 -m venv /tmp/dbt_venv
-            source /tmp/dbt_venv/bin/activate
-            
-            # 2. CÀI ĐẶT TỪNG BƯỚC ĐỂ TRÁNH BUILD PSOCP2
-            pip install --upgrade pip
-            # Cài bản binary trước
-            pip install --no-cache-dir psycopg2-binary==2.9.9
-            # Cài dbt-core trước
-            pip install --no-cache-dir dbt-core==1.8.0
-            # Cài dbt-postgres mà KHÔNG cho phép nó tự cài dependency (vì mình đã cài ở trên rồi)
-            pip install --no-cache-dir dbt-postgres==1.8.0 --no-deps
-            
-            # 3. Di chuyển vào thư mục dự án
             cd {DBT_PROJECT_DIR}
             
-            # 4. Kiểm tra file (Dùng lệnh dbt trực tiếp)
-            echo "--- ĐANG KIỂM TRA KẾT NỐI (DBT DEBUG) ---"
-            dbt debug --project-dir . --profiles-dir {DBT_PROFILES_DIR} --target dev
+            echo "--- KIỂM TRA BIẾN MÔI TRƯỜNG ---"
+            echo "Kết nối tới Host: $DBT_POSTGRES_HOST"
             
-            if [ $? -ne 0 ]; then
-                echo "LỖI: dbt debug thất bại. Kiểm tra profiles.yml và kết nối database!"
-                exit 2
+            # Chạy trực tiếp dbt (không cần venv vì Helm đã cài sẵn vào image)
+            dbt debug --project-dir {DBT_PROJECT_DIR} --profiles-dir {DBT_PROFILES_DIR} --target dev
+            
+            if [ $? -eq 0 ]; then
+                echo "--- KẾT NỐI THÀNH CÔNG, BẮT ĐẦU CHẠY DBT ---"
+                dbt run --project-dir {DBT_PROJECT_DIR} --profiles-dir {DBT_PROFILES_DIR} --target dev
+            else
+                echo "--- THẤT BẠI KHI DEBUG ---"
+                exit 1
             fi
-
-            echo "--- ĐANG CHẠY DỰ ÁN (DBT RUN) ---"
-            dbt run --project-dir . --profiles-dir {DBT_PROFILES_DIR} --target dev
         """,
         env=DBT_ENV
     )
