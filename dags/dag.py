@@ -45,18 +45,23 @@ with DAG(
         bash_command=f"""
             cd {DBT_PROJECT_DIR}
             
+            echo "--- CẬP NHẬT PATH ---"
+            # Đảm bảo hệ thống tìm thấy các lệnh được cài qua pip install --user
+            export PATH=$PATH:/home/airflow/.local/bin
+            
             echo "--- KIỂM TRA PHIÊN BẢN ---"
-            python3 -m pip show dbt-core dbt-postgres || python3 -m pip install dbt-postgres
+            # Nếu chưa có dbt thì mới cài, để tiết kiệm thời gian
+            dbt --version || (python3 -m pip install dbt-postgres && export PATH=$PATH:/home/airflow/.local/bin)
             
             echo "--- KIỂM TRA BIẾN MÔI TRƯỜNG ---"
             echo "Kết nối tới Host: $DBT_POSTGRES_HOST"
             
-            # Sử dụng python3 -m dbt thay vì gọi dbt trực tiếp
-            python3 -m dbt debug --project-dir . --profiles-dir . --target dev
+            # Gọi trực tiếp lệnh dbt
+            dbt debug --project-dir . --profiles-dir . --target dev
             
             if [ $? -eq 0 ]; then
                 echo "--- KẾT NỐI THÀNH CÔNG ---"
-                python3 -m dbt run --project-dir . --profiles-dir . --target dev
+                dbt run --project-dir . --profiles-dir . --target dev
             else
                 echo "--- THẤT BẠI KHI DEBUG ---"
                 exit 1
