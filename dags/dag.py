@@ -43,25 +43,28 @@ with DAG(
     dbt_run = BashOperator(
         task_id='dbt_run_task',
         bash_command=f"""
-            export PATH="/home/airflow/.local/bin:$PATH"
+            # 1. Cài đặt trực tiếp vào virtualenv hiện tại (Bỏ --user)
+            echo "--- ĐANG CÀI ĐẶT DBT ---"
+            python3 -m pip install dbt-postgres --no-cache-dir
             
-            # Cài đặt/Cập nhật dbt
-            python3 -m pip install --user dbt-postgres --no-cache-dir
+            # 2. Lấy đường dẫn tuyệt đối của dbt vừa cài
+            DBT_EXE=$(python3 -c "import site; import os; print(os.path.join(site.getsitepackages()[0], '../../../bin/dbt'))")
+            # Nếu lệnh trên phức tạp quá, ta thử dùng lệnh 'which'
+            [ -f "$DBT_EXE" ] || DBT_EXE=$(which dbt)
             
-            cd {DBT_PROJECT_DIR}
+            cd {DBT_PROJECT_DIR} || exit 1
             
-            echo "--- KIỂM TRA ĐƯỜNG DẪN HIỆN TẠI ---"
-            pwd
+            echo "--- KIỂM TRA PHIÊN BẢN ---"
+            $DBT_EXE --version
             
-            echo "--- THỰC THI DBT DEBUG (VERBOSE) ---"
-            # Thêm flag --debug để thấy chi tiết dbt tìm file ở đâu
-            dbt --debug debug --project-dir {DBT_PROJECT_DIR} --profiles-dir {DBT_PROFILES_DIR} --target dev
+            echo "--- THỰC THI DEBUG ---"
+            $DBT_EXE debug --project-dir {DBT_PROJECT_DIR} --profiles-dir {DBT_PROFILES_DIR} --target dev
             
             if [ $? -eq 0 ]; then
                 echo "--- KẾT NỐI THÀNH CÔNG ---"
-                dbt run --project-dir {DBT_PROJECT_DIR} --profiles-dir {DBT_PROFILES_DIR} --target dev
+                $DBT_EXE run --project-dir {DBT_PROJECT_DIR} --profiles-dir {DBT_PROFILES_DIR} --target dev
             else
-                echo "--- DEBUG THẤT BẠI: VUI LÒNG KIỂM TRA BẢNG LOG PHÍA TRÊN ---"
+                echo "--- THẤT BẠI KHI DEBUG ---"
                 exit 1
             fi
         """,
