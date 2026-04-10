@@ -2,7 +2,6 @@ version: 2
 
 sources:
   - name: stg
-    database: postgres
     schema: stg
     tables:
       - name: stg_branch
