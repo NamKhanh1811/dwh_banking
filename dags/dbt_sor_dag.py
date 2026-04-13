@@ -30,6 +30,7 @@ with DAG(
     dag_id='dbt_sor_workflow_k8s',
     start_date=datetime(2026, 4, 1),
     schedule_interval='0 2 * * *', # 3. Đặt lịch chạy 2h sáng hàng ngày
+    max_active_runs=1,
     catchup=False,
     tags=['dbt', 'sor', 'testing']
 ) as dag:
